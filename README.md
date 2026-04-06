@@ -1,1 +1,3 @@
-# csc365api
+Contributors: Anay Agrawal, Emily Cea
+
+Project Pitch: The project will be a backend API that will allow different users to track and manage their favorite movies. Movies will be originally sourced from an external database and then added to our personal relational database. Users will be able to login to their accounts. Users can then add/update/remove these movies from their account which would then be updated on our personal database. Users can also rate the films they have watched and query films based on different attributes like genre, director, lead actor, personal rating, etc. 
