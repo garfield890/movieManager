@@ -40,7 +40,7 @@ wheels = [
 ]
 
 [[package]]
-name = "centralcoastcauldrons"
+name = "movieManager"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
