@@ -1,5 +1,13 @@
-from src import config
-from sqlalchemy import create_engine
+import os
 
-connection_url = config.get_settings().POSTGRES_URI
-engine = create_engine(connection_url, pool_pre_ping=True)
+from dotenv import load_dotenv
+import sqlalchemy
+
+load_dotenv()
+
+DATABASE_URL = os.environ["POSTGRES_URI"]
+
+engine = sqlalchemy.create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True,
+)
