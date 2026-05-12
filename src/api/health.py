@@ -1,12 +1,5 @@
-from dataclasses import dataclass
-from fastapi import APIRouter, Depends, status
-from pydantic import BaseModel, Field, field_validator
-from typing import List
-import random
-
-import sqlalchemy
+from fastapi import APIRouter, Depends
 from src.api import auth
-from src import database as db
 
 router = APIRouter(
     prefix="/health",

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from server import decimal_to_float
+from src.misc import decimal_to_float
 
 import sqlalchemy
 from src.api import auth

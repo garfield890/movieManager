@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
-from server import GENRE_ALIASES, decimal_to_float, normalize_person
+from src.misc import GENRE_ALIASES, decimal_to_float, normalize_person
 
 import sqlalchemy
 from src.api import auth
@@ -374,7 +374,7 @@ def filter_movie_collection_by_director(user_id: int, director: str):
         ]
     }
 
-@router.get("/{user_id}/collection/filter/actor/{actopr}", tags=["collection"])
+@router.get("/{user_id}/collection/filter/actor/{actor}", tags=["collection"])
 def filter_movie_collection_by_actor(user_id: int, actor: str):
     actor = normalize_person(actor)
     with db.engine.begin() as connection:
@@ -383,7 +383,7 @@ def filter_movie_collection_by_actor(user_id: int, actor: str):
                 """
                 SELECT actor_id
                 FROM actors
-                WHERE name = :actor
+                WHERE actor_name = :actor
                 """
             ),
             {"actor": actor}
@@ -399,7 +399,7 @@ def filter_movie_collection_by_actor(user_id: int, actor: str):
                 FROM watched_movies wm
                 JOIN movies ON wm.movie_id = movies.movie_id
                 JOIN movie_actors ma ON ma.movie_id = movies.movie_id
-                JOIN actors a ON a.actor_id = md.actor_id
+                JOIN actors a ON a.actor_id = ma.actor_id
                 WHERE wm.user_id = :user_id AND a.actor_id = :actor_id
                 ORDER BY wm.rating DESC
                 """
@@ -500,7 +500,8 @@ def recommend_movies(user_id: int):
                 FROM unwatched_movies um
                 JOIN user_genre_preferences ugp ON um.genre_id = ugp.genre_id
                 JOIN genres g ON g.genre_id = um.genre_id
-                ORDER BY ugp.avg_genre_rating DESC, um.imdb_rating DESC
+                GROUP BY um.movie_id, um.movie_name, um.year, um.imdb_rating
+                ORDER BY MAX(ugp.avg_genre_rating) DESC, um.imdb_rating DESC
                 LIMIT 5
                 """
             ),
@@ -522,7 +523,7 @@ def recommend_movies(user_id: int):
         ]
     }
 
-@router.get("/users/{user_id}/insights", tags=["collection"])
+@router.get("/{user_id}/insights", tags=["collection"])
 def get_user_insights(user_id: int):
     with db.engine.begin() as connection:
         favorite_genres = connection.execute(
@@ -584,7 +585,7 @@ def get_user_insights(user_id: int):
                 """
             ),
             {"user_id": user_id}
-        ).mappings().all
+        ).mappings().all()
 
         return {
             "favorite_genres": [genre["genre_name"] for genre in favorite_genres],
