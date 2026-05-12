@@ -30,7 +30,7 @@ He logs in with POST /users/login (user_id 2058) and then rates Arrival by calli
 
 { "rating": 8.5, "watched": true }
 
-With that out of the way, he pulls up his top sci-fi picks by calling GET /users/2058/collection/filter/science-fiction.
+With that out of the way, he pulls up his top sci-fi picks by calling GET /users/2058/collection/filter/genre/sci-fi.
 
 {
   "collection": [
@@ -61,7 +61,7 @@ Dune: Part One no longer feels like a favorite, so she drops it with POST /users
 
 { "user_id": 3311, "external_id": "tt1160419", "removed": true }
 
-Finally she checks the updated shelf with GET /users/3311/collection/filter/denis_villnueve
+Finally she checks the updated shelf with GET /users/3311/collection/filter/director/denis_villnueve
 
 {
   "collection": [
