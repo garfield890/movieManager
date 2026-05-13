@@ -8,7 +8,6 @@ from src import database as db
 
 router = APIRouter(
     prefix="/users",
-    tags=["users"],
     dependencies=[Depends(auth.get_api_key)],
 )
 
@@ -28,7 +27,83 @@ class UpdateCollectionRequest(BaseModel):
     watched: bool = True
     rating: float = Field(ge=0, le=10)
 
-@router.post("/register", tags=["users"])
+class RegisterResponse(BaseModel):
+    user_id: int
+    username: str
+
+class LoginResponse(BaseModel):
+    user_id: int
+    username: str
+    token: str
+
+class CollectionEntryResponse(BaseModel):
+    movie_id: int
+    title: str
+    release_year: int | None
+    imdb_rating: float | None
+    watched: bool
+    rating: float | None
+
+class CollectionResponse(BaseModel):
+    collection: list[CollectionEntryResponse]
+
+class GenreFilterEntryResponse(BaseModel):
+    movie_id: int
+    movie_title: str
+    release_year: int | None
+    rating: float | None
+    genre: str
+
+class GenreFilterResponse(BaseModel):
+    collection: list[GenreFilterEntryResponse]
+
+class DirectorFilterEntryResponse(BaseModel):
+    movie_id: int
+    movie_title: str
+    release_year: int | None
+    rating: float | None
+    director: str
+
+class DirectorFilterResponse(BaseModel):
+    collection: list[DirectorFilterEntryResponse]
+
+class ActorFilterEntryResponse(BaseModel):
+    movie_id: int
+    movie_title: str
+    release_year: int | None
+    rating: float | None
+    actor: str
+
+class ActorFilterResponse(BaseModel):
+    collection: list[ActorFilterEntryResponse]
+
+class RecommendationEntryResponse(BaseModel):
+    movie_id: int
+    movie_name: str
+    release_year: int | None
+    imdb_rating: float | None
+    genre: str | None = None
+    predicted_rating: float | None = None
+
+class RecommendationsResponse(BaseModel):
+    description: str
+    collection: list[RecommendationEntryResponse]
+
+class TopDirectorResponse(BaseModel):
+    name: str
+    watch_count: int
+
+class TopActorResponse(BaseModel):
+    actor_name: str
+    watch_count: int
+
+class InsightsResponse(BaseModel):
+    favorite_genres: list[str]
+    top_director: TopDirectorResponse | None
+    top_actor: TopActorResponse | None
+    top_decade: list[str]
+
+@router.post("/register", tags=["users"], response_model=RegisterResponse)
 def register_user(request: RegisterRequest):
     with db.engine.begin() as connection:
         existing_user = connection.execute(
@@ -73,7 +148,7 @@ def register_user(request: RegisterRequest):
     }
 
 
-@router.post("/login", tags=["users"])
+@router.post("/login", tags=["users"], response_model=LoginResponse)
 def login_user(request: LoginRequest):
     with db.engine.begin() as connection:
         row = connection.execute(
@@ -240,7 +315,7 @@ def remove_movie_from_collection(
         "removed": True
     }
 
-@router.get("/{user_id}/collection", tags=["collection"])
+@router.get("/{user_id}/collection", tags=["collection"], response_model=CollectionResponse)
 def get_user_collection(user_id: int):
     with db.engine.begin() as connection:
         rows = connection.execute(
@@ -276,7 +351,7 @@ def get_user_collection(user_id: int):
         ]
     }
 
-@router.get("/{user_id}/collection/filter/genre/{genre}", tags=["collection"])
+@router.get("/{user_id}/collection/filter/genre/{genre}", tags=["collection"], response_model=GenreFilterResponse)
 def filter_movie_collection_by_genre(user_id: int, genre: str):
     genre = GENRE_ALIASES.get(genre)
     with db.engine.begin() as connection:
@@ -325,7 +400,7 @@ def filter_movie_collection_by_genre(user_id: int, genre: str):
         ]
     }
 
-@router.get("/{user_id}/collection/filter/director/{director}", tags=["collection"])
+@router.get("/{user_id}/collection/filter/director/{director}", tags=["collection"], response_model=DirectorFilterResponse,)
 def filter_movie_collection_by_director(user_id: int, director: str):
     director = normalize_person(director)
     with db.engine.begin() as connection:
@@ -374,7 +449,7 @@ def filter_movie_collection_by_director(user_id: int, director: str):
         ]
     }
 
-@router.get("/{user_id}/collection/filter/actor/{actor}", tags=["collection"])
+@router.get("/{user_id}/collection/filter/actor/{actor}", tags=["collection"], response_model=ActorFilterResponse)
 def filter_movie_collection_by_actor(user_id: int, actor: str):
     actor = normalize_person(actor)
     with db.engine.begin() as connection:
@@ -423,7 +498,7 @@ def filter_movie_collection_by_actor(user_id: int, actor: str):
         ]
     }
 
-@router.get("/{user_id}/recommendations", tags=["collection"])
+@router.get("/{user_id}/recommendations", tags=["users"], response_model=RecommendationsResponse)
 def recommend_movies(user_id: int):
     with db.engine.begin() as connection:
         top_unwatched = connection.execute(
@@ -523,7 +598,7 @@ def recommend_movies(user_id: int):
         ]
     }
 
-@router.get("/{user_id}/insights", tags=["collection"])
+@router.get("/{user_id}/insights", tags=["users"], response_model=InsightsResponse)
 def get_user_insights(user_id: int):
     with db.engine.begin() as connection:
         favorite_genres = connection.execute(
