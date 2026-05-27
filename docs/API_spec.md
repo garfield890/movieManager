@@ -164,3 +164,7 @@ Example response:
     }
   ]
 }
+
+## Complex End Point: 
+    1. GET /users/{user_id}/recommendations. It computes personalized recommendations from prior ratings
+    2. GET /users/{user_id}/insights` — computes cross-table analytics (favorite genres, top director/actor, top decades) from a user's watched history
