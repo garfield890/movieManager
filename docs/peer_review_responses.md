@@ -93,3 +93,18 @@
 
 1. **Fixed** — Added trending endpoint, see Nicolas PI#1
 2. **Skipped** — Difficult to manage a comment section in a small-scale assignment like this.
+
+## Angel —  Schema / API (SAPI)
+
+1. **Fixed** — See Pihu CR#1
+2. **Skipped** — True, but they need to input username as well which for this project should be okay
+3. **Fixed** — See Nicolas CR#1
+4. **Skipped** — See Angel SAPI #2
+5. **Fixed** — See Pihu CR#6
+6. **Skipped** — See Angel CR#12
+7. **Fixed** — See Pihu CR#5, special character requirements would make it difficult to test
+8. **Skipped** — Sure, but there are already plenty of sites that generate strong passwords.
+9. **Skipped** — Only 250 movies can be added, and we do want to see all the movies. Pagination would help, but would be difficult with the /docs page.
+10. **Fixed** — See Angel CR#11
+11. **Fixed** — See Angel CR#9
+12. **Fixed** — See Pihu CR#2
