@@ -25,13 +25,19 @@ def parse_movies(file_path):
         genre = movie.get("Genre")
         imdb_rating = movie.get("imdbRating")
         actors = movie.get("Actors")
+        runtime = movie.get("Runtime")
+        mpaa_rating = movie.get("Rated")
+        plot = movie.get("Plot")
         parsed_movie = {
             "title": title,
             "year": year,
             "director": director,
             "genre": genre,
             "imdb_rating": imdb_rating,
-            "actors": actors
+            "actors": actors,
+            "runtime": runtime,
+            "mpaa_rating": mpaa_rating,
+            "plot": plot,
         }
 
         parsed_movies.append(parsed_movie)
@@ -77,14 +83,26 @@ def split_list(value):
             result.append(item)
     return result
 
+def parse_runtime(value):
+    value = clean(value)
+    if value is None:
+        return None
+    try:
+        return int(value.replace("min", "").strip())
+    except ValueError:
+        return None
+
 def upload_movie(connection, movie):
     result = connection.execute(
         sqlalchemy.text(
             """
-            INSERT INTO movies (movie_name, year, imdb_rating)
-            VALUES (:movie_name, :year, :imdb_rating)
+            INSERT INTO movies (movie_name, year, imdb_rating, runtime, mpaa_rating, plot)
+            VALUES (:movie_name, :year, :imdb_rating, :runtime, :mpaa_rating, :plot)
             ON CONFLICT (movie_name, year) DO UPDATE
-            SET imdb_rating = EXCLUDED.imdb_rating
+            SET imdb_rating = EXCLUDED.imdb_rating,
+                runtime = EXCLUDED.runtime,
+                mpaa_rating = EXCLUDED.mpaa_rating,
+                plot = EXCLUDED.plot
             RETURNING movie_id
             """
         ),
@@ -92,6 +110,9 @@ def upload_movie(connection, movie):
             "movie_name": clean(movie["title"]),
             "year": parse_year(movie["year"]),
             "imdb_rating": parse_rating(movie["imdb_rating"]),
+            "runtime": parse_runtime(movie["runtime"]),
+            "mpaa_rating": clean(movie["mpaa_rating"]),
+            "plot": clean(movie["plot"]),
         },
     )
 
