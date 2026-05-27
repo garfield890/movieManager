@@ -224,66 +224,6 @@ def login_user(request: LoginRequest):
             "token": token,
         }
 
-@router.post("/{login_token}/collection/{movie_id}", tags=["collection"])
-def add_movie_to_collection(
-    login_token: str,
-    movie_id: int,
-    request: AddCollectionRequest,
-):
-    with db.engine.begin() as connection:
-        user = connection.execute(
-            sqlalchemy.text(
-                """
-                SELECT users.user_id
-                FROM users
-                JOIN logins ON logins.user_id = users.user_id
-                WHERE login_token = :token
-                """
-            ),
-            {"token": login_token},
-        ).mappings().first()
-
-        if user is None:
-            raise HTTPException(status_code=404, detail="User not found")
-
-        movie = connection.execute(
-            sqlalchemy.text(
-                """
-                SELECT movie_id
-                FROM movies
-                WHERE movie_id = :movie_id
-                """
-            ),
-            {"movie_id": movie_id},
-        ).mappings().first()
-
-        if movie is None:
-            raise HTTPException(status_code=404, detail="Movie not found")
-
-        row = connection.execute(
-            sqlalchemy.text(
-                """
-                INSERT INTO watched_movies (user_id, movie_id, watched, rating)
-                VALUES (:user_id, :movie_id, :watched, NULL)
-                ON CONFLICT (user_id, movie_id) DO UPDATE
-                SET watched = EXCLUDED.watched
-                RETURNING user_id, movie_id, watched, rating
-                """
-            ),
-            {
-                "user_id": user["user_id"],
-                "movie_id": movie_id,
-                "watched": request.watched,
-            },
-        ).mappings().one()
-
-    return {
-        "user_id": row["user_id"],
-        "movie_id": row["movie_id"],
-        "watched": row["watched"],
-        "rating": decimal_to_float(row["rating"]),
-    }
-
 @router.post("/{login_token}/collection/add_by_title", tags=["collection"])
 def add_movie_to_collection_by_title(login_token: str, request: AddMovieByTitleRequest):
     with db.engine.begin() as connection:
@@ -361,7 +301,67 @@ def add_movie_to_collection_by_title(login_token: str, request: AddMovieByTitleR
     return {
         "user_id": row["user_id"],
         "movie_id": row["movie_id"],
-        "title": row["movie_name"],
+        "title": movie["movie_name"],
+        "watched": row["watched"],
+        "rating": decimal_to_float(row["rating"]),
+    }
+
+@router.post("/{login_token}/collection/{movie_id}", tags=["collection"])
+def add_movie_to_collection(
+    login_token: str,
+    movie_id: int,
+    request: AddCollectionRequest,
+):
+    with db.engine.begin() as connection:
+        user = connection.execute(
+            sqlalchemy.text(
+                """
+                SELECT users.user_id
+                FROM users
+                JOIN logins ON logins.user_id = users.user_id
+                WHERE login_token = :token
+                """
+            ),
+            {"token": login_token},
+        ).mappings().first()
+
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        movie = connection.execute(
+            sqlalchemy.text(
+                """
+                SELECT movie_id
+                FROM movies
+                WHERE movie_id = :movie_id
+                """
+            ),
+            {"movie_id": movie_id},
+        ).mappings().first()
+
+        if movie is None:
+            raise HTTPException(status_code=404, detail="Movie not found")
+
+        row = connection.execute(
+            sqlalchemy.text(
+                """
+                INSERT INTO watched_movies (user_id, movie_id, watched, rating)
+                VALUES (:user_id, :movie_id, :watched, NULL)
+                ON CONFLICT (user_id, movie_id) DO UPDATE
+                SET watched = EXCLUDED.watched
+                RETURNING user_id, movie_id, watched, rating
+                """
+            ),
+            {
+                "user_id": user["user_id"],
+                "movie_id": movie_id,
+                "watched": request.watched,
+            },
+        ).mappings().one()
+
+    return {
+        "user_id": row["user_id"],
+        "movie_id": row["movie_id"],
         "watched": row["watched"],
         "rating": decimal_to_float(row["rating"]),
     }
