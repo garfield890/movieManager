@@ -776,7 +776,7 @@ def recommend_movies(login_token: str):
     }
 
 @router.get("/{login_token}/insights", tags=["users"], response_model=InsightsResponse)
-def get_user_insights(login_token: str, limits: InsightsLimits):
+def get_user_insights(login_token: str, limits: InsightsLimits = Depends()):
     with db.engine.begin() as connection:
         user = connection.execute(
             sqlalchemy.text(
