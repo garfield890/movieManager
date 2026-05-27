@@ -234,7 +234,7 @@ def add_movie_to_collection(
         user = connection.execute(
             sqlalchemy.text(
                 """
-                SELECT user_id
+                SELECT users.user_id
                 FROM users
                 JOIN logins ON logins.user_id = users.user_id
                 WHERE login_token = :token
@@ -290,7 +290,7 @@ def add_movie_to_collection_by_title(login_token: str, request: AddMovieByTitleR
         user = connection.execute(
             sqlalchemy.text(
                 """
-                SELECT user_id
+                SELECT users.user_id
                 FROM users
                 JOIN logins ON logins.user_id = users.user_id
                 WHERE login_token = :token
@@ -376,7 +376,7 @@ def update_movie_in_collection(
         user = connection.execute(
             sqlalchemy.text(
                 """
-                SELECT user_id
+                SELECT users.user_id
                 FROM users
                 JOIN logins ON logins.user_id = users.user_id
                 WHERE login_token = :token
@@ -433,7 +433,7 @@ def remove_movie_from_collection(
         user = connection.execute(
             sqlalchemy.text(
                 """
-                SELECT user_id
+                SELECT users.user_id
                 FROM users
                 JOIN logins ON logins.user_id = users.user_id
                 WHERE login_token = :token
@@ -487,7 +487,7 @@ def get_user_collection(login_token: str):
         user = connection.execute(
             sqlalchemy.text(
                 """
-                SELECT user_id
+                SELECT users.user_id
                 FROM users
                 JOIN logins ON logins.user_id = users.user_id
                 WHERE login_token = :token
@@ -543,7 +543,7 @@ def filter_movie_collection(login_token: str, filters : FilterRequest):
         user = connection.execute(
             sqlalchemy.text(
                 """
-                SELECT user_id
+                SELECT users.user_id
                 FROM users
                 JOIN logins ON logins.user_id = users.user_id
                 WHERE login_token = :token
@@ -606,7 +606,7 @@ def recommend_movies(login_token: str):
         user = connection.execute(
             sqlalchemy.text(
                 """
-                SELECT user_id
+                SELECT users.user_id
                 FROM users
                 JOIN logins ON logins.user_id = users.user_id
                 WHERE login_token = :token
@@ -781,7 +781,7 @@ def get_user_insights(login_token: str, limits: InsightsLimits):
         user = connection.execute(
             sqlalchemy.text(
                 """
-                SELECT user_id
+                SELECT users.user_id
                 FROM users
                 JOIN logins ON logins.user_id = users.user_id
                 WHERE login_token = :token

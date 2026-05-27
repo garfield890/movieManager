@@ -75,3 +75,7 @@ Code Review (CR) Comments (Angel)
 10. **Skipped** This endpoint returns only one movie (or max 3 if not there)
 11. **Fixed** Renamed to title for consistency
 12. **Skipped** Overkill for this assignment
+
+Product Ideas (PI) (Angel)
+1. **Fixed** Added trending endpoint, See Nicolas PI#1
+2. **Skipped** Difficult to manage a comment section in a small-scale assignment like this.
