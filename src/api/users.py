@@ -562,7 +562,7 @@ def filter_movie_collection(login_token: str, filters: FilterRequest = Depends()
         result = connection.execute(
             sqlalchemy.text(
                 """
-                SELECT movies.movie_id, movies.movie_name, movies.year AS movie_year, wm.rating, g.genre_name, d.name AS director_name, a.actor_name
+                SELECT DISTINCT ON (movies.movie_id) movies.movie_id, movies.movie_name, movies.year AS movie_year, wm.rating, g.genre_name, d.name AS director_name, a.actor_name
                 FROM watched_movies wm
                 JOIN movies ON wm.movie_id = movies.movie_id
                 JOIN movie_genres mg ON mg.movie_id = movies.movie_id
@@ -572,7 +572,7 @@ def filter_movie_collection(login_token: str, filters: FilterRequest = Depends()
                 JOIN movie_actors ma ON ma.movie_id = movies.movie_id
                 JOIN actors a ON a.actor_id = ma.actor_id
                 WHERE wm.user_id = :user_id AND (:genre = '' OR g.genre_name = :genre) AND (:director = '' OR d.name = :director) AND (:actor = '' OR a.actor_name = :actor) AND (:release_year = 0 OR movies.year = :release_year) AND (:rating = -1.0 OR wm.rating = :rating) AND wm.watched = True
-                ORDER BY wm.rating DESC NULLS LAST
+                ORDER BY movies.movie_id, wm.rating DESC NULLS LAST
                 """
             ),
             {
