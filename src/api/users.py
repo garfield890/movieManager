@@ -690,7 +690,7 @@ def recommend_movies(login_token: str):
                 "collection": [
                     {
                         "movie_id": row["movie_id"],
-                        "movie_name": row["movie_name"],
+                        "title": row["movie_name"],
                         "release_year": row["year"],
                         "imdb_rating": decimal_to_float(row["imdb_rating"]),
                         "runtime": row["runtime"],
@@ -753,7 +753,7 @@ def recommend_movies(login_token: str):
         "collection": [
             {
                 "movie_id": rec["movie_id"],
-                "movie_name": rec["movie_name"],
+                "title": rec["movie_name"],
                 "release_year": rec["year"],
                 "imdb_rating": decimal_to_float(rec["imdb_rating"]),
                 "runtime": rec["runtime"],
