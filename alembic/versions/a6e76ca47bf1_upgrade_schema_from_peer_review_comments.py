@@ -73,7 +73,7 @@ def upgrade() -> None:
         sa.Column(
             "runtime",
             sa.Integer(),
-            server_default=0,
+            server_default=sa.text("0"),
             nullable=False
         )
     )
@@ -83,7 +83,7 @@ def upgrade() -> None:
         sa.Column(
             "mpaa_rating",
             sa.String(),
-            server_default="PG-13",
+            server_default=sa.text("'PG-13'"),
             nullable=False
         )
     )
@@ -93,7 +93,7 @@ def upgrade() -> None:
         sa.Column(
             "plot",
             sa.String(),
-            server_default="",
+            server_default=sa.text("''"),
             nullable=False
         )
     )
