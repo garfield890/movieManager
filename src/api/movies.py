@@ -92,12 +92,28 @@ def get_trending_movies(days: int):
                 SELECT movies.movie_id, movies.movie_name, movies.year AS release_year, movies.imdb_rating, movies.runtime, movies.mpaa_rating, movies.plot, COUNT(*) as watch_count
                 FROM movies
                 JOIN watched_movies wm ON wm.movie_id = movies.movie_id
-                WHERE wm.date_added >= now() - INTERVAL ':days days'
-                GROUP BY movies.movie_id, movies.movie_name, movies.year AS release_year, movies.imdb_rating, movies.runtime, movies.mpaa_rating, movies.plot
+                WHERE wm.date_added >= CURRENT_DATE - :days
+                GROUP BY movies.movie_id, movies.movie_name, movies.year, movies.imdb_rating, movies.runtime, movies.mpaa_rating, movies.plot
                 ORDER BY watch_count DESC
                 """
-            )
-        ) 
+            ),
+            {"days": days},
+        ).mappings().all()
 
-        if trending is None:
+        if not trending:
             raise HTTPException(status_code=404, detail="No trending movies within day range. Try a larger day range or add some movies.")
+
+    return {
+        "trending_movies": [
+            {
+                "movie_id": row["movie_id"],
+                "title": row["movie_name"],
+                "release_year": row["release_year"],
+                "imdb_rating": decimal_to_float(row["imdb_rating"]),
+                "runtime": row["runtime"],
+                "mpaa_rating": row["mpaa_rating"],
+                "plot": row["plot"],
+            }
+            for row in trending
+        ]
+    }
