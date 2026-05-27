@@ -28,7 +28,7 @@ def upgrade() -> None:
 
     op.create_table(
         "failed_genre_aliases",
-        sa.Column("id", sa.Identity(), nullable=False, primary_key=True),
+        sa.Column("id", sa.Integer(), sa.Identity(), nullable=False, primary_key=True),
         sa.Column("alias", sa.String(), nullable=False, primary_key=False)
     )
 
