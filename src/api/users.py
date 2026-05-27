@@ -538,7 +538,7 @@ def get_user_collection(login_token: str):
     }
 
 @router.get("/{login_token}/collection/filter", tags=["collection"], response_model=FilterResponse)
-def filter_movie_collection(login_token: str, filters : FilterRequest):
+def filter_movie_collection(login_token: str, filters: FilterRequest = Depends()):
     with db.engine.begin() as connection:
         user = connection.execute(
             sqlalchemy.text(
