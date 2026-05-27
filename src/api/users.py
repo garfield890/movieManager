@@ -589,7 +589,7 @@ def filter_movie_collection(login_token: str, filters: FilterRequest = Depends()
             "collection": [
                 {
                     "movie_id": row["movie_id"],
-                    "movie_title": row["movie_name"],
+                    "title": row["movie_name"],
                     "release_year": row["movie_year"],
                     "rating": decimal_to_float(row["rating"]),
                     "genre": row["genre_name"],
