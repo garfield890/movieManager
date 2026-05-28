@@ -45,14 +45,14 @@ Phantom Read: "A phantom read occurs when the same query is executed twice withi
     T1->>DB: SELECT top_unwatched
     T1->>DB: COMMIT
     #Response is logically sinconsistent with latest committed state.
-    ![alt text](<Screenshot 2026-05-27 at 10.40.05.png>)
+    
 
     Solution: SERIALIZABLE and retry on serialization failure.
         - Keep retries to less than 5 times
         - Add short delay before retry under high contention
         - Return 503 when retries are exhausted
     SERIALIZABLE + retry remains a valid solution, as it safeguards the consistency of the recommendation decision with respect to the state of the `watched_movies` set.
-
+![alt text](<Screenshot 2026-05-27 at 10.40.05.png>)
 
 ## CASE 3:
 Phantom Read: "A phantom read occurs when the same query is executed twice within a transaction, but the second execution returns a different set of rows because another transaction inserted or deleted rows that match the query condition"
@@ -73,8 +73,9 @@ Phantom Read: "A phantom read occurs when the same query is executed twice withi
     T1->>DB: Query top director
     T1->>DB: COMMIT
     Note over T1: Returned analytics may mix old and new states
-    ![alt text](<Screenshot 2026-05-27 at 18.21.01.png>)
+    
 
     Solution：REPEATABLE READ
     - guarantee one consistent snapshot for all aggregate queries
     This solution is appropriate bacause endpoint is read-analytic and should be self-consistent rather than blocking other transactions
+![alt text](<Screenshot 2026-05-27 at 18.21.01.png>)
