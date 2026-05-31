@@ -1,5 +1,12 @@
 .env
 default.env
 .venv/
+*.env
+*.venv/
 __pycache__/
-.DS_Store
+*.DS_Store
+*.tsv
+*.tsv.gz
+*.csv
+*.csv.gz
+*.yml
