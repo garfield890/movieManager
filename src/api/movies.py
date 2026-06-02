@@ -89,12 +89,26 @@ def get_trending_movies(days: int):
         trending = connection.execute(
             sqlalchemy.text(
                 """
-                SELECT movies.movie_id, movies.movie_name, movies.year AS release_year, movies.imdb_rating, movies.runtime, movies.mpaa_rating, movies.plot, COUNT(*) as watch_count
-                FROM movies
-                JOIN watched_movies wm ON wm.movie_id = movies.movie_id
-                WHERE wm.date_added >= CURRENT_DATE - :days
-                GROUP BY movies.movie_id, movies.movie_name, movies.year, movies.imdb_rating, movies.runtime, movies.mpaa_rating, movies.plot
-                ORDER BY watch_count DESC
+                WITH trending_counts AS (
+                    SELECT wm.movie_id, COUNT(*) AS watch_count
+                    FROM watched_movies wm
+                    WHERE wm.date_added >= CURRENT_DATE - :days
+                    GROUP BY wm.movie_id
+                    ORDER BY watch_count DESC
+                    LIMIT 20
+                )
+                SELECT
+                    m.movie_id,
+                    m.movie_name,
+                    m.year AS release_year,
+                    m.imdb_rating,
+                    m.runtime,
+                    m.mpaa_rating,
+                    m.plot,
+                    tc.watch_count
+                FROM trending_counts tc
+                JOIN movies m ON m.movie_id = tc.movie_id
+                ORDER BY tc.watch_count DESC
                 """
             ),
             {"days": days},

@@ -464,6 +464,7 @@ def remove_movie_from_collection(
                 """
                 DELETE FROM watched_movies wm
                 WHERE wm.movie_id = :movie_id AND wm.user_id = :user_id
+                RETURNING wm.movie_id
                 """
             ),
             {

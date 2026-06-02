@@ -1,31 +1,34 @@
 from logging.config import fileConfig
 import os
 
+from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
 from alembic import context
 
 # Alembic Config object
 config = context.config
 
-# Load DB URI from environment and override config
-config.set_main_option(
-    "sqlalchemy.url",
-    os.getenv(
-        "POSTGRES_URI", "postgresql+psycopg://myuser:mypassword@localhost/mydatabase"
-    ),
-)
+# Load .env file
+load_dotenv()
+
+# Load DB URI from environment and override alembic.ini
+database_url = os.getenv("POSTGRES_URI")
+
+if database_url is None:
+    raise RuntimeError("POSTGRES_URI is not set")
+
+config.set_main_option("sqlalchemy.url", database_url)
 
 # Set up logging
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Import your metadata (for `--autogenerate`)
+# Import your metadata for --autogenerate later
 # from app.db import Base
-target_metadata = None  # or Base.metadata
+target_metadata = None
 
 
 def run_migrations_offline() -> None:
-    """Run migrations in 'offline' mode."""
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
@@ -39,10 +42,10 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode."""
     configuration = config.get_section(config.config_ini_section)
     if not configuration:
         raise Exception("No config section for Alembic")
+
     connectable = engine_from_config(
         configuration,
         prefix="sqlalchemy.",
@@ -56,7 +59,6 @@ def run_migrations_online() -> None:
             context.run_migrations()
 
 
-# Entry point
 if context.is_offline_mode():
     run_migrations_offline()
 else:

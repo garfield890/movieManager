@@ -9,4 +9,5 @@ __pycache__/
 *.tsv.gz
 *.csv
 *.csv.gz
+imdb_data/
 *.yml
