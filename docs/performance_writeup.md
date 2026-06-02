@@ -22,7 +22,7 @@ Fake user activity script:
 Endpoint performance test script:
 [src/test_endpoint_performance.py](src/test_endpoint_performance.py)
 
-The IMDB data came from [text](https://datasets.imdbws.com/)
+The IMDB data came from [IMDB](https://datasets.imdbws.com/)
 
 For this performance test, we used DBEAVER instead of the hosted database.
 
