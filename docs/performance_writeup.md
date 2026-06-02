@@ -30,7 +30,8 @@ We used faked user data. `src/generate_fake_data.py` creates 10,000 fake users a
 
 DATA SIZE:
 
-````SELECT 'users' AS table_name, COUNT(*) AS row_count FROM users
+```sql
+SELECT 'users' AS table_name, COUNT(*) AS row_count FROM users
 UNION ALL
 SELECT 'movies', COUNT(*) FROM movies
 UNION ALL
@@ -48,9 +49,11 @@ SELECT 'movie_actors', COUNT(*) FROM movie_actors
 UNION ALL
 SELECT 'movie_directors', COUNT(*) FROM movie_directors
 UNION ALL
-SELECT 'movie_genres', COUNT(*) FROM movie_genres;```
+SELECT 'movie_genres', COUNT(*) FROM movie_genres;
+```
 
 Result:
+
 |table_name|row_count|
 |----------|---------|
 |movie_actors|4029072|
@@ -63,8 +66,8 @@ Result:
 |users|10001|
 |logins|2|
 |genres|27|
+
 Total 8590797 rows
-```
 
 ![alt text](<../Screenshot 2026-06-01 at 18.46.51.png>)
 
@@ -412,6 +415,7 @@ This means PostgreSQL reads the needed `watched_movies` values directly from the
 ### Retest on API 
 
 Result:
+
 | Endpoint | Status | Min ms | Avg ms | Max ms | Error |
 |---|---:|---:|---:|---:|---|
 | GET / | 200 | 3.20 | 3.28 | 3.36 |  |
@@ -429,12 +433,17 @@ Result:
 | GET /users/leaderboard/{genre}/{limit} | 200 | 242.38 | 256.24 | 272.81 |  |
 | DELETE /users/{token}/collection/{movie_id} | 404 | 7.18 | 7.49 | 8.06 | {"detail":"Collection entry not found"} |
 
-| GET /movies/trending/{days}
+Endpoint tuned: GET /movies/trending/{days}
+
 Initial: AVG 4276.32 ms
+
 After tuning: AVG 204.79 ms
 
 Improvement:
+
+```text
 (4276.32 - 204.79) / 4276.32 = 95.2%
+```
 
 ## Conclusion 
 After tuning, the slowest endpoint's run time was reduced 95.2% from 4276.32 ms to 204.79 ms and 70.4% at the SQL level from 439.815 ms to 130.029 ms at the SQL level.
