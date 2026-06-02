@@ -446,5 +446,5 @@ Improvement:
 ```
 
 ## Conclusion 
-After tuning, the slowest endpoint's run time was reduced 95.2% from 4276.32 ms to 204.79 ms and 70.4% at the SQL level from 439.815 ms to 130.029 ms at the SQL level.
+After tuning, the slowest endpoint's run time was reduced 95.2% from 4276.32 ms to 204.79 ms and 70.4% from 439.815 ms to 130.029 ms at the SQL level.
 We could proudly conclude that this tuning is successful.
