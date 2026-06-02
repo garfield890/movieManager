@@ -63,8 +63,11 @@ Result:
 |users|10001|
 |logins|2|
 |genres|27|
-![alt text](<../Screenshot 2026-06-01 at 18.46.51.png>)
 Total 8590797 rows
+```
+
+![alt text](<../Screenshot 2026-06-01 at 18.46.51.png>)
+
 
 
 This exceeds the required one million rows. The distribution is realistic because it is based on real IMDb metadata.
@@ -99,7 +102,7 @@ The slowest endpoint was:
 ```text
 GET /movies/trending/{days}
 Average time: 4276.32 ms
-````
+```
 
 ## Performance Tuning
 
