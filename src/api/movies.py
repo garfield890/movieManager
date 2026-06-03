@@ -153,7 +153,7 @@ LEADERBOARD_SORT_COLUMNS = {
     "highest_rated_movie": "MAX(wm.rating)",
 }
 
-@router.get("/leaderboard/{genre}/{limit}", tags=["users"], response_model=LeaderboardResponse)
+@router.get("/leaderboard/{genre}/{limit}", response_model=LeaderboardResponse)
 def get_leaderboard(
     genre: str, 
     limit: int, 
