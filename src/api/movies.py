@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException
-from src.misc import decimal_to_float
+from fastapi import APIRouter, Depends, HTTPException, Query
+from src.misc import GENRE_ALIASES, decimal_to_float
 from pydantic import BaseModel
+from typing import Literal
 
 import sqlalchemy
 from src.api import auth
@@ -23,6 +24,19 @@ class TrendingEntryResponse(BaseModel):
 
 class TrendingResponse(BaseModel):
     trending_movies: list[TrendingEntryResponse]
+
+class LeaderboardEntryResponse(BaseModel):
+    rank: int
+    user_id: int
+    username: str
+    movies_watched: int
+    hours_watched: float | None
+    average_rating: float | None
+
+class LeaderboardResponse(BaseModel):
+    sort_by: str
+    genre: str | None
+    leaderboard: list[LeaderboardEntryResponse]
 
 @router.get("/external/search/{title}/{year}", tags=["movies"])
 def search_movie(title: str, year: int):
@@ -130,4 +144,63 @@ def get_trending_movies(days: int):
             }
             for row in trending
         ]
+    }
+LEADERBOARD_SORT_COLUMNS = {
+    "movies_watched": "COUNT(*)",
+    "hours_watched": "COALESCE(SUM(m.runtime), 0) / 60.0",
+    "average_rating": "ROUND(AVG(wm.rating)::numeric, 2)",
+    "movies_rated": "COUNT(wm.rating)",
+    "highest_rated_movie": "MAX(wm.rating)",
+}
+
+@router.get("/leaderboard/{genre}/{limit}", tags=["users"], response_model=LeaderboardResponse)
+def get_leaderboard(
+    genre: str, 
+    limit: int, 
+    sort_by: Literal["movies_watched", "hours_watched", "average_rating", "movies_rated", "highest_rated_movie"] = Query(default="movies_watched")
+):
+    order_col = LEADERBOARD_SORT_COLUMNS[sort_by]
+    genre = GENRE_ALIASES.get(genre.lower(), '')
+
+    with db.engine.begin() as connection:
+        rows = connection.execute(
+            sqlalchemy.text(
+                f"""
+                SELECT
+                    u.user_id,
+                    u.username,
+                    COUNT(*) AS movies_watched,
+                    ROUND(COALESCE(SUM(m.runtime), 0) / 60.0, 1) AS hours_watched,
+                    ROUND(AVG(wm.rating), 2) AS average_rating
+                FROM users u
+                JOIN watched_movies wm ON wm.user_id = u.user_id
+                JOIN movies m ON m.movie_id = wm.movie_id
+                WHERE wm.watched = TRUE
+                  AND (:genre = '' OR EXISTS (
+                      SELECT 1 FROM movie_genres mg
+                      JOIN genres g ON g.genre_id = mg.genre_id
+                      WHERE mg.movie_id = m.movie_id AND g.genre_name = :genre
+                  ))
+                GROUP BY u.user_id, u.username
+                ORDER BY {order_col} DESC NULLS LAST
+                LIMIT :limit
+                """
+            ),
+            {"genre": genre, "limit": limit},
+        ).mappings().all()
+
+    return {
+        "sort_by": sort_by,
+        "genre": genre if genre else None,
+        "leaderboard": [
+            {
+                "rank": idx + 1,
+                "user_id": row["user_id"],
+                "username": row["username"],
+                "movies_watched": row["movies_watched"],
+                "hours_watched": decimal_to_float(row["hours_watched"]),
+                "average_rating": decimal_to_float(row["average_rating"]),
+            }
+            for idx, row in enumerate(rows)
+        ],
     }
